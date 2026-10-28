@@ -33,7 +33,16 @@ export interface Me {
   employee: { id: number; matricule: string; first_name: string; last_name: string; job_title: string; org_unit: string | null };
   mobile_punch_enabled: boolean; mobile_punch_allowed_here: boolean; today: Day; server_time: string;
 }
-export interface Who { username: string; name: string; role: string | null; has_employee: boolean }
+export interface Who { username: string; name: string; role: string | null; has_employee: boolean; must_change_password: boolean }
+export interface LicenceState {
+  requise: boolean; active: boolean; code_installation: string; modules_disponibles: Record<string, string>;
+  licence?: { numero: string; client: string; modules: string[]; essai: boolean; max_employes: number | null; max_pointeuses: number | null;
+    expire_le: string | null; jours_restants: number | null; expiree: boolean; horloge_reculee: boolean };
+  usage?: { employes: number; pointeuses: number };
+}
+export interface BackupItem { nom: string; type: "manual" | "auto" | "pre_restore" | "imported"; creee_le: string; par: string; taille: number; chiffree: boolean; lignes: number | null; copie: string }
+export interface BackupState { reglages: { auto: boolean; hour: number; keep: number; copy_dir: string }; dossier: string; chiffrement: boolean; sauvegardes: BackupItem[] }
+export interface UserRow { id: number; username: string; first_name: string; last_name: string; email: string; is_active: boolean; role: string; scopes: number[]; must_change_password: boolean }
 
 let token: string | null = null;
 try { token = localStorage.getItem("token"); } catch { /* storage unavailable */ }
@@ -43,7 +52,7 @@ export const setToken = (t: string | null) => {
 };
 export const isLogged = () => token !== null;
 
-export class ApiError extends Error { constructor(public status: number, msg: string) { super(msg); } }
+export class ApiError extends Error { constructor(public status: number, msg: string, public code = "") { super(msg); } }
 
 function readable(body: unknown): string {
   if (body && typeof body === "object") {
@@ -61,7 +70,10 @@ async function raw(path: string, init: RequestInit = {}): Promise<Response> {
     headers: { ...(isForm ? {} : { "Content-Type": "application/json" }), ...(token ? { Authorization: `Token ${token}` } : {}) },
   });
   if (r.status === 401) { setToken(null); window.dispatchEvent(new Event("badgeo:logout")); throw new ApiError(401, "Session expirée"); }
-  if (!r.ok) throw new ApiError(r.status, readable(await r.json().catch(() => null)));
+  if (!r.ok) {
+    const b = await r.json().catch(() => null);
+    throw new ApiError(r.status, readable(b), b && typeof b === "object" && typeof b.code === "string" ? b.code : "");
+  }
   return r;
 }
 const json = async <T,>(path: string, init?: RequestInit) => (await raw(path, init)).json() as Promise<T>;
@@ -99,3 +111,12 @@ export const mePunch = () => post<{ timestamp: string; today: Day }>("/me/punch/
 export const meHistory = (from: string, to: string) =>
   json<{ days: Day[]; totals: { worked_min: number; late_min: number; overtime_min: number; expected_min: number } }>(`/me/history/${qs({ from, to })}`);
 export const mePlanning = () => json<{ days: { date: string; holiday: boolean; shift: { name: string; start: string; end: string; crosses_midnight: boolean } | null }[] }>("/me/planning/");
+
+export const get = <T,>(path: string) => json<T>(path);
+export const put = <T,>(path: string, data: unknown) => json<T>(path, { method: "PUT", body: body(data) });
+export const patch = <T,>(path: string, data: unknown) => json<T>(path, { method: "PATCH", body: body(data) });
+export const licence = () => json<LicenceState>("/licence/");
+export const activate = (cle: string) => post<LicenceState>("/licence/", { cle });
+export async function changePassword(ancien: string, nouveau: string) {
+  setToken((await post<{ token: string }>("/auth/password/", { ancien, nouveau })).token);
+}

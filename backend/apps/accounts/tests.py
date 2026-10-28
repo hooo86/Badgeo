@@ -78,3 +78,31 @@ class RoleTests(TestCase):
         log.action = "y"
         with self.assertRaises(PermissionError):
             log.save()
+
+
+class PasswordTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
+    def test_provisional_password_blocks_everything_until_changed(self):
+        u = User.objects.create_user("prov", password="Provisoire-123!")
+        Profile.objects.create(user=u, role="hr_manager", must_change_password=True)
+        h = {"HTTP_AUTHORIZATION": f"Token {Token.objects.create(user=u).key}"}
+        r = self.client.get("/api/employees/", **h)
+        self.assertEqual((r.status_code, r.json()["code"]), (403, "changement_mot_de_passe"))
+        self.assertTrue(self.client.get("/api/whoami/", **h).json()["must_change_password"])
+        json = "application/json"
+        self.assertEqual(self.client.post("/api/auth/password/", {"ancien": "faux", "nouveau": "Nouveau-Passe-456!"}, content_type=json, **h).status_code, 400)
+        self.assertEqual(self.client.post("/api/auth/password/", {"ancien": "Provisoire-123!", "nouveau": "123"}, content_type=json, **h).status_code, 400)
+        ok = self.client.post("/api/auth/password/", {"ancien": "Provisoire-123!", "nouveau": "Nouveau-Passe-456!"}, content_type=json, **h)
+        self.assertEqual(ok.status_code, 200)
+        h2 = {"HTTP_AUTHORIZATION": f"Token {ok.json()['token']}"}
+        self.assertEqual(self.client.get("/api/employees/", **h2).status_code, 200)
+        self.assertEqual(self.client.get("/api/employees/", **h).status_code, 401)  # ancien jeton révoqué
+
+    def test_admin_set_password_is_provisional(self):
+        root = User.objects.create_superuser("root", password="Str0ng-pass-123")
+        h = {"HTTP_AUTHORIZATION": f"Token {Token.objects.create(user=root).key}"}
+        r = self.client.post("/api/users/", {"username": "n", "role": "viewer", "password": "Str0ng-pass-123"}, content_type="application/json", **h)
+        self.assertTrue(User.objects.get(username="n").profile.must_change_password)
+        self.assertTrue(r.json()["must_change_password"])

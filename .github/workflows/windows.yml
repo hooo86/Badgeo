@@ -1,0 +1,89 @@
+# Fabrique la version Windows de Badgeo sur une machine Windows de GitHub, puis la teste en la démarrant vraiment.
+#  - mode « essai »      : Badgeo-Test-Windows.zip (clé d'essai de 30 jours, aucune installation requise)
+#  - mode « production » : Badgeo-Setup.exe (installateur + service Windows) ; exige la clé publique de licence réelle
+# Lancer : onglet Actions → « Windows » → Run workflow. Une étiquette v… (git tag v1.0.0 && git push --tags) lance « production ».
+name: Windows
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "essai (zip de test) ou production (Setup.exe)"
+        type: choice
+        options: [essai, production]
+        default: essai
+  push:
+    tags: ["v*"]
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      MODE: ${{ inputs.mode || 'production' }}
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Bibliothèques de fabrication
+        run: python -m pip install -r windows/requirements-windows.txt
+      - name: Tests du backend
+        working-directory: backend
+        run: python manage.py test
+      - name: Fabrication du paquet
+        run: python windows/construire.py --mode $env:MODE
+      - name: Test de fumée (démarrage réel sous Windows)
+        if: env.MODE == 'essai'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $env:BADGEO_DONNEES = Join-Path $PWD "donnees-fumee"
+          Expand-Archive windows/Badgeo-Test-Windows.zip -DestinationPath fumee
+          $racine = Join-Path $PWD "fumee/Badgeo"
+          $p = Start-Process -FilePath "$racine/python/python.exe" -ArgumentList "`"$racine/lanceur.py`"" -PassThru `
+               -RedirectStandardOutput fumee.log -RedirectStandardError fumee.err
+          $ok = $false
+          for ($i = 0; $i -lt 90 -and -not $ok; $i++) {
+            Start-Sleep -Seconds 2
+            try { $ok = (Invoke-WebRequest http://localhost:8000/api/licence/ -UseBasicParsing).StatusCode -eq 200 } catch {}
+          }
+          if (-not $ok) { Get-Content fumee.log, fumee.err; throw "Badgeo n'a pas démarré" }
+          $accueil = Invoke-WebRequest http://localhost:8000/ -UseBasicParsing
+          if ($accueil.Content -notmatch "Badgeo") { throw "Interface absente" }
+          $cle = (Get-Content "$racine/CLE_ESSAI.txt" -Raw).Trim()
+          $etat = Invoke-RestMethod http://localhost:8000/api/licence/ -Method Post -ContentType "application/json" -Body (@{cle=$cle} | ConvertTo-Json)
+          if (-not $etat.active) { throw "Activation échouée" }
+          $mdp = ((Get-Content (Join-Path $env:BADGEO_DONNEES "identifiants-initiaux.txt") | Select-String "Mot de passe").ToString() -split ": ")[1].Trim()
+          $tok = (Invoke-RestMethod http://localhost:8000/api/auth/token/ -Method Post -ContentType "application/json" -Body (@{username="admin";password=$mdp} | ConvertTo-Json)).token
+          $nouveau = (Invoke-RestMethod http://localhost:8000/api/auth/password/ -Method Post -ContentType "application/json" -Headers @{Authorization="Token $tok"} -Body (@{ancien=$mdp;nouveau="Fumee-Windows-2026!"} | ConvertTo-Json)).token
+          $h = @{Authorization="Token $nouveau"}
+          $sauv = Invoke-RestMethod http://localhost:8000/api/backups/ -Method Post -ContentType "application/json" -Headers $h -Body "{}"
+          if (-not $sauv.nom) { throw "Sauvegarde échouée" }
+          Invoke-RestMethod http://localhost:8000/api/dashboard/ -Headers $h | Out-Null
+          Write-Host "Test de fumée réussi : activation, connexion, changement de mot de passe, sauvegarde, tableau de bord."
+          Stop-Process $p -Force
+      - name: Inno Setup
+        if: env.MODE == 'production'
+        run: choco install innosetup --no-progress -y
+      - name: Installateur
+        if: env.MODE == 'production'
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          & $iscc "/DVersion=$(Get-Date -Format 'yyyy.MM.dd')" "/DPaquet=$PWD\windows\construction\Badgeo" "/O$PWD\windows" "windows\badgeo.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup a échoué" }
+      - uses: actions/upload-artifact@v4
+        if: env.MODE == 'essai'
+        with:
+          name: Badgeo-Test-Windows
+          path: windows/Badgeo-Test-Windows.zip
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: env.MODE == 'production'
+        with:
+          name: Badgeo-Setup
+          path: windows/Badgeo-Setup.exe
+          retention-days: 30

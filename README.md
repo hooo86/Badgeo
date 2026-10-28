@@ -17,7 +17,9 @@ API : `/api/devices/`, `/api/devices/{id}/test_connection/`, `/api/devices/{id}/
 - Tableau de bord, 11 rapports (JSON/CSV/Excel/PDF), journal d'audit, rôles avec périmètre.
 - Interface web responsive et application mobile employé (pointer, historique, planning), inspirées du design Stitch « Application Gestion de Pointeuse ».
 
-Documentation : `docs/INSTALLATION.md`, `docs/API.md`, `docs/REGLES_PRESENCE.md`. Développement : `cd backend && python manage.py test` ; `python manage.py seed_demo` pour des données simulées.
+- Licences signées liées au poste (modules, plafonds, expiration en lecture seule), sauvegardes chiffrées, planifiées et restaurables, version Windows (zip de test, installateur).
+
+Documentation : `docs/LICENCES_ET_SAUVEGARDES.md`, `windows/LISEZMOI.md`, `docs/INSTALLATION.md`, `docs/API.md`, `docs/REGLES_PRESENCE.md`. Développement : `cd backend && python manage.py test` ; `python manage.py seed_demo` pour des données simulées.
 
 ## Garanties anti-perte
 - La mémoire de la pointeuse n'est jamais effacée par l'application.

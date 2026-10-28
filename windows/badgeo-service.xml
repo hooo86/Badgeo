@@ -1,0 +1,16 @@
+<!-- Service Windows « Badgeo » (WinSW) : démarre avec l'ordinateur, redémarre en cas d'arrêt inattendu. -->
+<service>
+  <id>Badgeo</id>
+  <name>Badgeo</name>
+  <description>Badgeo — gestion des pointages et des présences (serveur local, port 8000).</description>
+  <executable>%BASE%\python\python.exe</executable>
+  <arguments>"%BASE%\lanceur.py"</arguments>
+  <workingdirectory>%BASE%</workingdirectory>
+  <startmode>Automatic</startmode>
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  <resetfailure>1 hour</resetfailure>
+  <env name="PYTHONUTF8" value="1"/>
+  <log mode="roll-by-size"><sizeThreshold>2048</sizeThreshold><keepFiles>3</keepFiles></log>
+  <logpath>%ProgramData%\Badgeo\journaux</logpath>
+</service>

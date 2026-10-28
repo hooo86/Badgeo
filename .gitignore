@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 .env
 staticfiles/
+windows/cache/
+windows/construction/
+windows/*.zip
+windows/*.exe
+backend/backups/

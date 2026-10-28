@@ -18,6 +18,7 @@ GLOBAL_ROLES = {Role.SYSADMIN, Role.DEVICE_ADMIN, Role.HR_MANAGER, Role.HR_STAFF
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
     role = models.CharField(max_length=16, choices=Role.choices, default=Role.VIEWER)
+    must_change_password = models.BooleanField(default=False, help_text="Mot de passe provisoire : à changer à la prochaine connexion")
     scopes = models.ManyToManyField("orgs.OrgUnit", blank=True,
                                     help_text="Périmètre (directions/services) pour les rôles non globaux")
 

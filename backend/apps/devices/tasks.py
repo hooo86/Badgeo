@@ -12,7 +12,7 @@ from .services import sync_device
 def sync_device_task(self, device_id, trigger=SyncLog.Trigger.AUTO):
     device = Device.objects.get(pk=device_id)
     result = sync_device(device, trigger)
-    if not result.success and self.request.retries < self.max_retries:
+    if not result.success and self.request.retries < self.max_retries and not self.request.is_eager:
         # exponential backoff: 30s, 60s, 120s... capped at 15 min
         raise self.retry(countdown=min(30 * 2 ** self.request.retries, 900))
     return result.pk

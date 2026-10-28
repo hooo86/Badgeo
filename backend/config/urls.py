@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from apps.accounts.views import LoginView, UserViewSet, whoami
+from apps.accounts.views import LoginView, UserViewSet, change_password, whoami
 from apps.attendance.views import PunchEventViewSet
 from apps.devices.views import DeviceViewSet, SyncLogViewSet
 from apps.audit.views import AuditLogViewSet
@@ -37,6 +37,7 @@ router.register("corrections", CorrectionViewSet)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/whoami/", whoami),
+    path("api/auth/password/", change_password),
     path("api/licence/", licence_view),
     path("api/backups/", bk.Racine.as_view()),
     path("api/backups/settings/", bk.Reglages.as_view()),
