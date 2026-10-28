@@ -1,0 +1,13 @@
+:root { font-family: system-ui, sans-serif; color: #1c2430; background: #f4f6f9; }
+body { margin: 0; } main { max-width: 1200px; margin: 0 auto; padding: 16px; }
+.card { background: #fff; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px #0002; margin-bottom: 16px; }
+.card.narrow { max-width: 320px; margin: 15vh auto; display: grid; gap: 8px; }
+.grid { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+input, select, button { padding: 8px; font: inherit; border: 1px solid #c5ccd6; border-radius: 6px; }
+button { background: #1f5eff; color: #fff; border: 0; cursor: pointer; } button.danger { background: #c62828; }
+.table-wrap { overflow-x: auto; } table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e3e7ee; vertical-align: top; }
+.actions { display: flex; gap: 4px; flex-wrap: wrap; }
+.pill { padding: 2px 8px; border-radius: 12px; color: #fff; background: #78808c; }
+.pill.connected { background: #2e7d32; } .pill.disconnected { background: #e65100; } .pill.error { background: #c62828; }
+.err { color: #c62828; } .small { font-size: 12px; }
