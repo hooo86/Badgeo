@@ -26,6 +26,9 @@ BACKEND = PROJET / "backend"
 FRONTEND = PROJET / "frontend"
 CACHE = ICI / "cache"
 SORTIE = ICI / "construction"
+# Python officiel (python.org) : python.exe et les DLL sont signés par la PSF, donc acceptés par le Contrôle intelligent
+# des applications de Windows 11. Le Python « portable » tiers (python-build-standalone) n'est PAS signé : à éviter.
+PY_OFFICIEL = "https://www.python.org/ftp/python/3.12.10/python-3.12.10-embed-amd64.zip"
 PBS = "https://github.com/astral-sh/python-build-standalone/releases/download/20250317/cpython-3.12.9+20250317-x86_64-pc-windows-msvc-install_only.tar.gz"
 WINSW = "https://github.com/winsw/winsw/releases/download/v2.12.0/WinSW-x64.exe"
 
@@ -64,6 +67,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=["essai", "production"], default="essai")
     ap.add_argument("--jours", type=int, default=30, help="durée de la clé d'essai")
+    ap.add_argument("--python", choices=["officiel", "tiers"], default="officiel",
+                    help="officiel = python.org (signé, recommandé) ; tiers = python-build-standalone (non signé)")
     a = ap.parse_args()
     stage = SORTIE / "Badgeo"
     shutil.rmtree(SORTIE, ignore_errors=True)
@@ -78,11 +83,20 @@ def main():
         executer(npm, "ci", cwd=FRONTEND)
         executer(npm, "run", "build", cwd=FRONTEND)
 
-    etape("Python portable 3.12 pour Windows")
-    archive = telecharger(PBS, "python-windows.tar.gz")
-    with tarfile.open(archive) as t:
-        t.extractall(stage)  # contient « python/ »
+    etape("Python 3.12 pour Windows")
     site = stage / "python" / "Lib" / "site-packages"
+    if a.python == "officiel":
+        archive = telecharger(PY_OFFICIEL, "python-3.12.10-embed-amd64.zip")
+        with zipfile.ZipFile(archive) as z:
+            z.extractall(stage / "python")
+        # Python « embarqué » : le fichier ._pth remplace la recherche habituelle ; on y ajoute site-packages et l'application
+        pth = next((stage / "python").glob("python*._pth"))
+        pth.write_text("python312.zip\n.\nLib\\site-packages\n..\\app\nimport site\n", encoding="utf-8")
+    else:
+        print("  ATTENTION : Python tiers NON SIGNÉ (peut être bloqué par le Contrôle intelligent des applications)")
+        archive = telecharger(PBS, "python-windows.tar.gz")
+        with tarfile.open(archive) as t:
+            t.extractall(stage)  # contient « python/ »
     site.mkdir(parents=True, exist_ok=True)
 
     etape("Bibliothèques (win_amd64, roues binaires uniquement)")
@@ -180,6 +194,10 @@ LISEZMOI_TEST = """BADGEO — VERSION DE TEST POUR WINDOWS
 Cette version est un essai : aucune installation, rien n'est modifié dans Windows. Elle n'a PAS été testée
 avec une vraie pointeuse ZKTeco/UNIS (voir « Ce qui n'est pas validé » plus bas).
 
+0. WINDOWS 11 « CONTROLE INTELLIGENT DES APPLICATIONS » : avant de décompresser, clic droit sur le .zip > Propriétés >
+   cocher « Débloquer » > OK (sinon tous les fichiers extraits sont marqués « téléchargés » et peuvent être bloqués).
+   Le programme Python fourni est celui de python.org (signé). Si Windows bloque quand même un fichier, notez son nom
+   exact dans le message et transmettez-le.
 1. Décompressez ce dossier (clic droit > Extraire tout) dans un chemin simple, ex. C:\\Badgeo-Test
 2. Double-cliquez sur  Demarrer-Badgeo.bat  (laissez la fenêtre noire ouverte : c'est le serveur).
    Si Windows demande l'autorisation du pare-feu : « Réseaux privés » suffit pour un test sur ce PC.

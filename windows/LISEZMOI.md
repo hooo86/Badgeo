@@ -33,3 +33,10 @@ Licence expirée : lecture seule (consultation, rapports, sauvegarde). Installat
 - Port différent de 8000 : variable système `BADGEO_PORT`.
 - Sauvegarde chiffrée : variable système `BADGEO_BACKUP_PASSPHRASE` (à conserver séparément).
 - Mise à jour : relancer `Badgeo-Setup.exe` ; la base est copiée dans `sauvegardes\avant-mise-a-jour` avant migration (5 dernières).
+
+## Windows 11 : « Contrôle intelligent des applications » (Smart App Control)
+Ce contrôle bloque les programmes non signés ou inconnus. Le paquet utilise donc le **Python officiel de python.org** (signé), pas un Python tiers, et aucune DLL propre à Badgeo n'est compilée.
+- Zip de test : avant de l'extraire, clic droit sur le `.zip` → Propriétés → **Débloquer** (sinon chaque fichier extrait garde la marque « téléchargé »).
+- `Badgeo-Setup.exe` (Inno Setup) est un exécutable non signé : pour un déploiement chez des clients, signez-le avec un certificat de signature de code (sinon SmartScreen/Smart App Control peut le bloquer).
+- Si un fichier est encore bloqué, le message en donne le nom : c'est l'information utile pour corriger.
+- Désactiver le contrôle est possible mais **irréversible** sans réinstaller Windows : à éviter, surtout sur un poste de production.
