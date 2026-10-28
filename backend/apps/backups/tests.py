@@ -112,8 +112,10 @@ class ServiceTests(Base):
         s.enregistrer_reglages({"copy_dir": str(ext)})
         meta = s.creer("manual")
         self.assertTrue((ext / meta["nom"]).exists())
-        with self.assertRaises(s.SauvegardeError):
-            s.enregistrer_reglages({"copy_dir": "/proc/inaccessible/x"})
+        fichier = Path(self.tmp) / "un_fichier"
+        fichier.write_text("x")
+        with self.assertRaises(s.SauvegardeError):  # un dossier ne peut pas être créé sous un fichier, sur tout système
+            s.enregistrer_reglages({"copy_dir": str(fichier / "sous-dossier")})
 
 
 class ApiTests(Base):
