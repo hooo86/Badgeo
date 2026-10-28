@@ -19,6 +19,8 @@ API : `/api/devices/`, `/api/devices/{id}/test_connection/`, `/api/devices/{id}/
 
 - Licences signées liées au poste (modules, plafonds, expiration en lecture seule), sauvegardes chiffrées, planifiées et restaurables, version Windows (zip de test, installateur).
 
+- Interface en **français, anglais et arabe** (écriture de droite à gauche), **mode clair / sombre / automatique**, icônes et polices embarquées (fonctionne hors connexion) ; thème repris des écrans Stitch « Badgeo ». Les fichiers exportés (Excel/CSV/PDF) et la plupart des messages du serveur restent en français.
+
 Documentation : `docs/LICENCES_ET_SAUVEGARDES.md`, `windows/LISEZMOI.md`, `docs/INSTALLATION.md`, `docs/API.md`, `docs/REGLES_PRESENCE.md`. Développement : `cd backend && python manage.py test` ; `python manage.py seed_demo` pour des données simulées.
 
 ## Garanties anti-perte
@@ -39,3 +41,8 @@ Documentation : `docs/LICENCES_ET_SAUVEGARDES.md`, `windows/LISEZMOI.md`, `docs/
 - Audit immuable (`/api/audit-logs/`) : création/modification/suppression, tests et synchronisations d'appareils, connexions. Les secrets sont retirés.
 - La clé de communication des appareils est chiffrée (Fernet) : définir `DEVICE_SECRET_KEY` en production. Perdre cette clé rend les secrets illisibles.
 - Mots de passe : hachés par Django, 10 caractères minimum. En production (`DJANGO_DEBUG=0`) : cookies sécurisés, HSTS, redirection HTTPS (à placer derrière un reverse proxy TLS).
+
+## Interface : langues, thème, icônes
+- Textes : le français sert de clé (`t("Texte")`) ; traductions dans `frontend/src/locales/{en,ar}.ts`. `npm run i18n` vérifie que tout est traduit (exécuté aussi par le workflow Windows).
+- Thème : jetons CSS dans `frontend/src/theme.css` (clair et sombre), choix mémorisé par navigateur.
+- Icônes : Material Symbols, police réduite aux icônes utilisées (`frontend/scripts/icon_names.txt`, `npm run icons` pour vérifier). Pour en ajouter : ajouter le nom à la liste, régénérer la police avec l'API Google Fonts (`icon_names=`) et remplacer `public/fonts/material-symbols.woff2`.

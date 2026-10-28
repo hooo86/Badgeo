@@ -30,6 +30,11 @@ jobs:
           node-version: "22"
       - name: Bibliothèques de fabrication
         run: python -m pip install -r windows/requirements-windows.txt
+      - name: Contrôle des traductions de l'interface (fr / en / ar)
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run i18n
       - name: Tests du backend
         working-directory: backend
         run: python manage.py test
