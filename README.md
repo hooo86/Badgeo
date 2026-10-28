@@ -9,14 +9,25 @@ docker compose exec web python manage.py createsuperuser
 ```
 API : `/api/devices/`, `/api/devices/{id}/test_connection/`, `/api/devices/{id}/sync/`, `/api/sync-logs/`, `/api/employees/`, `/api/punches/`.
 
+## Fonctionnalités (voir `docs/ANALYSE_ET_PLAN.md` pour l'état détaillé)
+- Pointeuses ZKTeco (protocole ZK, **non testé sur appareil réel**), synchronisation idempotente avec reprise ; UNIS : squelette.
+- Personnel, structures, import/export CSV/Excel, correspondance identifiants pointeuse ↔ matricule.
+- Horaires fixes/variables/nuit/rotations, jours fériés, congés et autorisations.
+- Moteur de présence (`docs/REGLES_PRESENCE.md`), anomalies, corrections avec validation à deux personnes.
+- Tableau de bord, 11 rapports (JSON/CSV/Excel/PDF), journal d'audit, rôles avec périmètre.
+- Interface web responsive et application mobile employé (pointer, historique, planning), inspirées du design Stitch « Application Gestion de Pointeuse ».
+
+Documentation : `docs/INSTALLATION.md`, `docs/API.md`, `docs/REGLES_PRESENCE.md`. Développement : `cd backend && python manage.py test` ; `python manage.py seed_demo` pour des données simulées.
+
 ## Garanties anti-perte
 - La mémoire de la pointeuse n'est jamais effacée par l'application.
 - Insertion idempotente : contrainte unique (appareil, id utilisateur, horodatage).
 - En cas d'échec : état enregistré, nouvelle tentative avec backoff exponentiel (Celery), le cycle planifié reprend ensuite.
 
 ## Limites actuelles
-- ZKTeco via `pyzk` (TCP/UDP). L'adaptateur UNIS est un squelette : le protocole dépend du modèle exact.
-- Pas encore : frontend React, horaires/retards, rapports, sauvegarde/restauration.
+- ZKTeco via `pyzk` (TCP/UDP), jamais exécuté sur un appareil réel. L'adaptateur UNIS est un squelette : le protocole dépend du modèle exact. Le mode ADMS (push) n'est pas implémenté.
+- Pas de géolocalisation ni de balises (iBeacon/NFC) : le pointage mobile est désactivé par défaut et peut être limité au réseau de l'entreprise.
+- Exports de paie (Sage, ADP…) non implémentés ; gestion des utilisateurs et affectations d'horaires via API/admin seulement (pas d'écran).
 
 ## Phase 2 – Utilisateurs, rôles, audit (terminée côté API)
 - Rôles : `sysadmin`, `device_admin`, `hr_manager`, `hr_staff`, `dept_head`, `viewer`. Les rôles `dept_head` et `viewer` ne voient que leur périmètre (unités organisationnelles et leurs sous-unités) ; sans périmètre ils ne voient rien.

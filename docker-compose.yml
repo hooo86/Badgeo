@@ -1,3 +1,4 @@
+# Badgeo. TLS must be terminated in front of `frontend` (reverse proxy / load balancer) that sets X-Forwarded-Proto: https.
 x-backend: &backend
   build: ./backend
   env_file: .env
@@ -12,20 +13,25 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"], interval: 10s, retries: 5 }
     restart: unless-stopped
   redis:
     image: redis:7
     restart: unless-stopped
   web:
     <<: *backend
-    command: sh -c "python manage.py migrate && gunicorn config.wsgi -b 0.0.0.0:8000 -w 3"
-    ports: ["8000:8000"]
+    command: sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn config.wsgi -b 0.0.0.0:8000 -w 3"
   worker:
     <<: *backend
     command: celery -A config worker -l info
   beat:
     <<: *backend
     command: celery -A config beat -l info
+  frontend:
+    build: ./frontend
+    ports: ["8080:80"]
+    depends_on: [web]
+    restart: unless-stopped
 
 volumes:
   pgdata:

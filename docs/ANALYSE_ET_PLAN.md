@@ -55,11 +55,11 @@ docs/  deploy/ (backup.sh, restore.sh, nginx.conf)  docker-compose.yml
 | 1 | Analyse protocoles | Fait (voie socket ZK documentée ; UNIS à confirmer) |
 | 2 | Base de données, auth, rôles, audit, chiffrement des secrets | Fait (voir README) ; restent : MFA, expiration/rotation des jetons, UI de gestion des utilisateurs |
 | 3 | Appareils, test IP, synchro idempotente, reprise | Prototype fait, non testé sur appareil réel ; incrémental, ADMS, doublons logiques à faire |
-| 4 | Personnel, structures, horaires, import/export | À faire |
-| 5 | Moteur de présence | À faire |
-| 6 | Anomalies et corrections | À faire |
-| 7 | Tableau de bord, rapports, exports | À faire |
-| 8 | Tests, sécurité, sauvegarde, documentation | Partiel (3 tests unitaires simulés) |
+| 4 | Personnel et horaires | Fait (API + écrans personnel, horaires, absences) ; reste : écrans d'affectation et de rotation, historique des affectations d'employé aux pointeuses |
+| 5 | Moteur de présence | Fait, 27 tests ; règles dans `docs/REGLES_PRESENCE.md` |
+| 6 | Anomalies et corrections | Fait (validation à deux personnes, valeurs avant/après conservées) |
+| 7 | Tableau de bord, rapports, exports | Fait (CSV/Excel/PDF) ; reste : filtres par type d'anomalie dans l'interface, export de paie |
+| 8 | Tests, sécurité, documentation, déploiement | Partiel : 42 tests simulés, Docker, sauvegarde chiffrée, docs ; non fait : tests sur appareil réel, MFA, test Docker réel |
 
 ## 6. Prototype livré
 

@@ -1,0 +1,2 @@
+{ "name": "Badgeo", "short_name": "Badgeo", "start_url": "/", "display": "standalone", "background_color": "#f7f9fb",
+  "theme_color": "#2563eb", "lang": "fr", "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }] }

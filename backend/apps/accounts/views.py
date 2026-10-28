@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers, viewsets
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
@@ -8,7 +10,7 @@ from rest_framework.throttling import ScopedRateThrottle
 
 from apps.audit.utils import audit, AuditMixin
 
-from .models import Profile, Role
+from .models import Profile, Role, get_role
 
 User = get_user_model()
 
@@ -78,3 +80,11 @@ class UserViewSet(AuditMixin, viewsets.ModelViewSet):
     role_rules = {"read": {"sysadmin"}, "write": {"sysadmin"}}
     search_fields = ["username", "first_name", "last_name", "email"]
     audit_exclude = ("password",)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def whoami(request):
+    u = request.user
+    return Response({"username": u.get_username(), "name": u.get_full_name() or u.get_username(),
+                     "role": get_role(u), "has_employee": hasattr(u, "employee")})
