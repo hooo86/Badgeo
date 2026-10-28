@@ -11,6 +11,8 @@ from apps.corrections.views import CorrectionViewSet
 from apps.employees.views import DeviceUserMapViewSet, EmployeeViewSet
 from apps.leaves.views import LeaveViewSet
 from apps.me import views as me_views
+from apps.backups import views as bk
+from apps.licensing.views import licence as licence_view
 from apps.reports import dashboard, views as report_views
 from apps.schedules.views import AssignmentViewSet, HolidayViewSet, RotationViewSet, ShiftViewSet
 from apps.orgs.views import OrgUnitViewSet
@@ -35,6 +37,12 @@ router.register("corrections", CorrectionViewSet)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/whoami/", whoami),
+    path("api/licence/", licence_view),
+    path("api/backups/", bk.Racine.as_view()),
+    path("api/backups/settings/", bk.Reglages.as_view()),
+    path("api/backups/upload/", bk.Importer.as_view()),
+    path("api/backups/<str:nom>/", bk.Detail.as_view()),
+    path("api/backups/<str:nom>/restore/", bk.Restaurer.as_view()),
     path("api/me/", me_views.me),
     path("api/me/punch/", me_views.punch),
     path("api/me/history/", me_views.history),

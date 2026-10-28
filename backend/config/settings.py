@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     "apps.corrections",
     "apps.reports",
     "apps.me",
+    "apps.licensing",
+    "apps.backups",
 ]
 
 MIDDLEWARE = [
@@ -39,6 +41,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "apps.licensing.middleware.LicenceMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -76,6 +79,7 @@ STORAGES = {"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "apps.core.exceptions.handler",
     "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework.authentication.TokenAuthentication", "rest_framework.authentication.SessionAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated", "apps.accounts.permissions.RolePermission"],
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
@@ -89,6 +93,10 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 50,
 }
 
+BADGEO_LICENCE_REQUISE = os.environ.get("BADGEO_LICENCE_REQUISE", "0") == "1"
+BADGEO_LICENCE_CLE_PUBLIQUE = os.environ.get("BADGEO_LICENCE_CLE_PUBLIQUE", "")
+BACKUP_DIR = Path(os.environ.get("BADGEO_BACKUP_DIR", BASE_DIR / "backups"))
+BACKUP_PASSPHRASE = os.environ.get("BADGEO_BACKUP_PASSPHRASE", "")
 PUNCH_DEDUP_MINUTES = int(os.environ.get("PUNCH_DEDUP_MINUTES", "2"))
 NO_PUNCH_BECOMES_ABSENCE = os.environ.get("NO_PUNCH_BECOMES_ABSENCE", "0") == "1"
 MOBILE_PUNCH_ENABLED = os.environ.get("MOBILE_PUNCH_ENABLED", "0") == "1"
@@ -103,6 +111,7 @@ CELERY_BEAT_SCHEDULE = {
         "task": "apps.devices.tasks.dispatch_due_syncs",
         "schedule": 60.0,  # each device decides via its own sync_interval_minutes
     },
+    "scheduled-backup": {"task": "apps.backups.tasks.sauvegarde_planifiee_task", "schedule": 600.0},
     "recompute-recent-days": {
         "task": "apps.attendance.tasks.recompute_recent_task",
         "schedule": 300.0,
