@@ -106,3 +106,17 @@ class PasswordTests(TestCase):
         r = self.client.post("/api/users/", {"username": "n", "role": "viewer", "password": "Str0ng-pass-123"}, content_type="application/json", **h)
         self.assertTrue(User.objects.get(username="n").profile.must_change_password)
         self.assertTrue(r.json()["must_change_password"])
+
+
+class InitialAdminTests(TestCase):
+    def test_default_admin_is_provisional_and_created_once(self):
+        from django.core.management import call_command
+        call_command("initialiser_local", stdout=__import__("io").StringIO())
+        u = User.objects.get(username="admin")
+        self.assertTrue(u.check_password("Badgeo@2026"))
+        self.assertTrue(u.profile.must_change_password and u.is_superuser)
+        u.set_password("Autre-Passe-2026!")
+        u.save()
+        call_command("initialiser_local", stdout=__import__("io").StringIO())  # ne recrée ni ne réinitialise rien
+        self.assertEqual(User.objects.count(), 1)
+        self.assertTrue(User.objects.get(username="admin").check_password("Autre-Passe-2026!"))

@@ -56,7 +56,7 @@ jobs:
           $cle = (Get-Content "$racine/CLE_ESSAI.txt" -Raw).Trim()
           $etat = Invoke-RestMethod http://localhost:8000/api/licence/ -Method Post -ContentType "application/json" -Body (@{cle=$cle} | ConvertTo-Json)
           if (-not $etat.active) { throw "Activation échouée" }
-          $mdp = ((Get-Content (Join-Path $env:BADGEO_DONNEES "identifiants-initiaux.txt") | Select-String "Mot de passe").ToString() -split ": ")[1].Trim()
+          $mdp = "Badgeo@2026"   # identifiants par défaut : admin / Badgeo@2026
           $tok = (Invoke-RestMethod http://localhost:8000/api/auth/token/ -Method Post -ContentType "application/json" -Body (@{username="admin";password=$mdp} | ConvertTo-Json)).token
           $nouveau = (Invoke-RestMethod http://localhost:8000/api/auth/password/ -Method Post -ContentType "application/json" -Headers @{Authorization="Token $tok"} -Body (@{ancien=$mdp;nouveau="Fumee-Windows-2026!"} | ConvertTo-Json)).token
           $h = @{Authorization="Token $nouveau"}

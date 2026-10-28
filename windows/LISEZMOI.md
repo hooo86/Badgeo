@@ -11,6 +11,9 @@ Deux livrables, fabriqués par `windows/construire.py` (aussi par le workflow Gi
 
 Le paquet contient son propre Python 3.12 (python-build-standalone), les bibliothèques Windows et l'interface : rien d'autre à installer. SQLite, serveur Waitress, planificateur intégré (pas de Redis).
 
+## Connexion par défaut
+Premier démarrage : utilisateur `admin`, mot de passe `Badgeo@2026`. Badgeo exige de le changer immédiatement (aucune autre action possible avant). Ce mot de passe étant public, changez-le avant d'exposer Badgeo sur le réseau.
+
 ## Fabriquer sur GitHub (recommandé)
 Onglet **Actions** → **Windows** → **Run workflow** → mode `essai`. Le workflow lance les tests, fabrique le paquet, le **démarre réellement sur Windows** (activation, connexion, changement de mot de passe, sauvegarde) puis publie `Badgeo-Test-Windows` dans les *Artifacts*.
 

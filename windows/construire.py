@@ -205,8 +205,8 @@ avec une vraie pointeuse ZKTeco/UNIS (voir « Ce qui n'est pas validé » plus b
 4. ACTIVATION : copiez le contenu de CLE_ESSAI.txt dans l'écran d'activation (valable jusqu'au {fin}, 25 employés,
    5 pointeuses, tous modules). Pour tester une licence liée à ce poste : Code-installation.bat, puis
    editeur-test\\Emettre-licence-test.bat.
-5. CONNEXION : utilisateur admin ; le mot de passe est dans  C:\\ProgramData\\Badgeo\\identifiants-initiaux.txt
-   (créé au premier démarrage, à changer immédiatement).
+5. CONNEXION : utilisateur  admin   mot de passe  Badgeo@2026
+   (identifiants par défaut : Badgeo vous demande de choisir un nouveau mot de passe dès la première connexion).
 6. Pour voir l'application remplie : arrêtez le serveur (fermer la fenêtre), lancez Charger-donnees-demo.bat
    (données FICTIVES, comptes demo_admin / demo_rh / demo_sophie, mot de passe Demo-Badgeo-2026!), puis Demarrer-Badgeo.bat.
    Les pointages « [SIMULATION] » ne prouvent rien sur les vraies pointeuses.

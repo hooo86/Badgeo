@@ -47,7 +47,7 @@ Filename: "{app}\Badgeo.url"; Section: "InternetShortcut"; Key: "URL"; String: "
 
 [Icons]
 Name: "{group}\Badgeo"; Filename: "{app}\Badgeo.url"
-Name: "{group}\Données, identifiants initiaux et sauvegardes"; Filename: "{commonappdata}\Badgeo"
+Name: "{group}\Données et sauvegardes"; Filename: "{commonappdata}\Badgeo"
 Name: "{group}\Désinstaller Badgeo"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\Badgeo"; Filename: "{app}\Badgeo.url"; Tasks: bureau
 
@@ -69,7 +69,7 @@ Type: filesandordirs; Name: "{app}\app"
 Type: filesandordirs; Name: "{app}\python"
 
 [Messages]
-fr.FinishedLabel=Badgeo est installé. Il démarre avec l'ordinateur et s'ouvre dans le navigateur à l'adresse http://localhost:8000.%n%nAu premier lancement, Badgeo affiche un code d'installation : communiquez-le à l'éditeur pour recevoir votre clé d'activation. Les identifiants initiaux sont dans C:\ProgramData\Badgeo\identifiants-initiaux.txt.%n%nVos données sont dans C:\ProgramData\Badgeo : elles ne sont jamais effacées, même en cas de désinstallation.
+fr.FinishedLabel=Badgeo est installé. Il démarre avec l'ordinateur et s'ouvre dans le navigateur à l'adresse http://localhost:8000.%n%nAu premier lancement, Badgeo affiche un code d'installation : communiquez-le à l'éditeur pour recevoir votre clé d'activation. Connexion par défaut : admin / Badgeo@2026 (à changer dès la première connexion).%n%nVos données sont dans C:\ProgramData\Badgeo : elles ne sont jamais effacées, même en cas de désinstallation.
 
 [Code]
 // Mise à jour : arrêter et retirer l'ancien service avant de remplacer les fichiers
