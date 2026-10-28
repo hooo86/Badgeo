@@ -29,3 +29,9 @@ class ScopedQuerysetMixin:
             return qs
         units = OrgUnit.with_descendants(user.profile.scopes.values_list("id", flat=True))
         return qs.filter(**{f"{self.scope_field}__in": units})
+
+
+class HasStaffRole(BasePermission):
+    """Any authenticated user holding a staff role (not the mobile-only 'employee' role)."""
+    def has_permission(self, request, view):
+        return get_role(request.user) not in (None, "employee")

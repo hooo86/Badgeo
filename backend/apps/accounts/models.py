@@ -9,6 +9,7 @@ class Role(models.TextChoices):
     HR_STAFF = "hr_staff", "Gestionnaire RH"
     DEPT_HEAD = "dept_head", "Responsable de direction"
     VIEWER = "viewer", "Utilisateur en consultation"
+    EMPLOYEE = "employee", "Employé (application mobile)"
 
 
 GLOBAL_ROLES = {Role.SYSADMIN, Role.DEVICE_ADMIN, Role.HR_MANAGER, Role.HR_STAFF}

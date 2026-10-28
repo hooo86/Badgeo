@@ -89,6 +89,7 @@ REST_FRAMEWORK = {
 PUNCH_DEDUP_MINUTES = int(os.environ.get("PUNCH_DEDUP_MINUTES", "2"))
 NO_PUNCH_BECOMES_ABSENCE = os.environ.get("NO_PUNCH_BECOMES_ABSENCE", "0") == "1"
 MOBILE_PUNCH_ENABLED = os.environ.get("MOBILE_PUNCH_ENABLED", "0") == "1"
+TRUST_X_FORWARDED_FOR = os.environ.get("TRUST_X_FORWARDED_FOR", "0") == "1"
 MOBILE_PUNCH_ALLOWED_CIDRS = [c for c in os.environ.get("MOBILE_PUNCH_ALLOWED_CIDRS", "").split(",") if c]
 
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
