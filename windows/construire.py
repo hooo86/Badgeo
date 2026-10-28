@@ -157,6 +157,7 @@ def main():
             "Charger-donnees-demo.bat": '@echo off\r\nchcp 65001 >nul\r\nset PYTHONUTF8=1\r\n"%~dp0python\\python.exe" "%~dp0lanceur.py" commande migrate --noinput\r\n'
                 '"%~dp0python\\python.exe" "%~dp0lanceur.py" commande seed_demo\r\npause\r\n',
             "Code-installation.bat": '@echo off\r\nchcp 65001 >nul\r\nset PYTHONUTF8=1\r\n"%~dp0python\\python.exe" "%~dp0lanceur.py" commande shell -c "from apps.licensing.licence import code_installation as c; print(c())"\r\npause\r\n',
+            "Reinitialiser-mot-de-passe-admin.bat": '@echo off\r\nchcp 65001 >nul\r\nset PYTHONUTF8=1\r\necho Arretez Badgeo avant de continuer (fermez la fenetre noire).\r\npause\r\n"%~dp0python\\python.exe" "%~dp0lanceur.py" commande reinitialiser_admin\r\npause\r\n',
             "Sauvegarde-maintenant.bat": '@echo off\r\nchcp 65001 >nul\r\nset PYTHONUTF8=1\r\n"%~dp0python\\python.exe" "%~dp0lanceur.py" commande shell -c "from apps.backups.services import creer; print(creer(\'manual\', \'console\'))"\r\npause\r\n',
         }
         for nom, contenu in bats.items():
@@ -206,6 +207,8 @@ avec une vraie pointeuse ZKTeco/UNIS (voir « Ce qui n'est pas validé » plus b
    5 pointeuses, tous modules). Pour tester une licence liée à ce poste : Code-installation.bat, puis
    editeur-test\\Emettre-licence-test.bat.
 5. CONNEXION : utilisateur  admin   mot de passe  Badgeo@2026
+   "Identifiants invalides" ? Un ancien dossier C:\\ProgramData\\Badgeo contient peut-être un autre mot de passe :
+   arrêtez Badgeo puis lancez Reinitialiser-mot-de-passe-admin.bat (remet admin / Badgeo@2026), ou renommez ce dossier pour repartir de zéro.
    (identifiants par défaut : Badgeo vous demande de choisir un nouveau mot de passe dès la première connexion).
 6. Pour voir l'application remplie : arrêtez le serveur (fermer la fenêtre), lancez Charger-donnees-demo.bat
    (données FICTIVES, comptes demo_admin / demo_rh / demo_sophie, mot de passe Demo-Badgeo-2026!), puis Demarrer-Badgeo.bat.

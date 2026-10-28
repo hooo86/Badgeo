@@ -120,3 +120,19 @@ class InitialAdminTests(TestCase):
         call_command("initialiser_local", stdout=__import__("io").StringIO())  # ne recrée ni ne réinitialise rien
         self.assertEqual(User.objects.count(), 1)
         self.assertTrue(User.objects.get(username="admin").check_password("Autre-Passe-2026!"))
+
+
+class ResetAdminTests(TestCase):
+    def test_reset_restores_default_credentials_and_revokes_tokens(self):
+        import io
+        from django.core.management import call_command
+        u = User.objects.create_user("admin", password="Mot-de-passe-oublie-1!")
+        u.is_active = False
+        u.save()
+        Token.objects.create(user=u)
+        call_command("reinitialiser_admin", stdout=io.StringIO())
+        u.refresh_from_db()
+        self.assertTrue(u.check_password("Badgeo@2026") and u.is_active and u.is_superuser)
+        self.assertTrue(u.profile.must_change_password)
+        self.assertFalse(Token.objects.filter(user=u).exists())
+        self.assertTrue(AuditLog.objects.filter(action="admin_reinitialise").exists())
