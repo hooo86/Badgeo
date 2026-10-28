@@ -5,7 +5,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.attendance.models import PunchEvent
-from apps.employees.models import DeviceUserMap
+from apps.employees.models import DeviceUserMap, Employee
 
 from .adapters import DeviceError, get_adapter
 from .models import Device, SyncLog
@@ -69,6 +69,11 @@ def sync_device(device, trigger=SyncLog.Trigger.AUTO) -> SyncLog:
         device.events_total, device.last_sync_ok, device.consecutive_failures = total, True, 0
         device.last_sync_at = timezone.now()
         _mark(device, Device.Status.CONNECTED)
+        try:
+            from apps.attendance.services import recompute_recent
+            recompute_recent(Employee.objects.filter(device_ids__device=device, status="active").distinct(), days=2)
+        except Exception:  # never let derived-data errors fail a successful raw sync
+            log.exception("recompute after sync failed for %s", device)
     except DeviceError as e:
         log_row.success, log_row.error = False, str(e)
         device.last_sync_ok = False

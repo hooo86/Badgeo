@@ -24,6 +24,11 @@ INSTALLED_APPS = [
     "apps.employees",
     "apps.devices",
     "apps.attendance",
+    "apps.schedules",
+    "apps.leaves",
+    "apps.corrections",
+    "apps.reports",
+    "apps.me",
 ]
 
 MIDDLEWARE = [
@@ -81,6 +86,11 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 50,
 }
 
+PUNCH_DEDUP_MINUTES = int(os.environ.get("PUNCH_DEDUP_MINUTES", "2"))
+NO_PUNCH_BECOMES_ABSENCE = os.environ.get("NO_PUNCH_BECOMES_ABSENCE", "0") == "1"
+MOBILE_PUNCH_ENABLED = os.environ.get("MOBILE_PUNCH_ENABLED", "0") == "1"
+MOBILE_PUNCH_ALLOWED_CIDRS = [c for c in os.environ.get("MOBILE_PUNCH_ALLOWED_CIDRS", "").split(",") if c]
+
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 CELERY_TASK_ALWAYS_EAGER = os.environ.get("CELERY_EAGER", "0") == "1"
 CELERY_TIMEZONE = TIME_ZONE
@@ -88,6 +98,10 @@ CELERY_BEAT_SCHEDULE = {
     "dispatch-device-syncs": {
         "task": "apps.devices.tasks.dispatch_due_syncs",
         "schedule": 60.0,  # each device decides via its own sync_interval_minutes
+    },
+    "recompute-recent-days": {
+        "task": "apps.attendance.tasks.recompute_recent_task",
+        "schedule": 300.0,
     },
 }
 

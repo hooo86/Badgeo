@@ -5,6 +5,8 @@ from django.db import models
 
 class Employee(models.Model):
     uid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    user = models.OneToOneField("auth.User", null=True, blank=True, on_delete=models.SET_NULL, related_name="employee",
+                                help_text="Compte utilisateur (application mobile)")
     matricule = models.CharField(max_length=32, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
